@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geoguard AI — Vigilância inteligente da floresta</title>
+  <meta name="description" content="Geoguard AI: IA para detecção de desmatamento e vetores de risco na Amazônia, com monitoramento contínuo e relatórios." />
+  
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <meta property="og:title" content="Geoguard AI — Vigilância inteligente da floresta" />
+  <meta property="og:description" content="Detecção de desmatamento e vetores de risco na Amazônia." />
+  <meta property="og:image" content="{{ url_for('static', filename='images/logo.png') }}" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#" aria-label="Página inicial">
+        <img class="logo-img" src="{{ url_for('static', filename='images/logo.png') }}" alt="Geoguard AI" />
+        <span>Geoguard AI</span>
+      </a>
+      <nav aria-label="Principal">
+        <button class="menu-btn" aria-controls="menu" aria-expanded="false">Menu</button>
+        <ul id="menu" role="menu">
+          <li role="none"><a role="menuitem" href="#sobre">Sobre</a></li>
+          <li role="none"><a role="menuitem" href="#recursos">Recursos</a></li>
+          <li role="none"><a role="menuitem" href="#monitor">Monitoramento</a></li>
+          <li role="none"><a role="menuitem" href="#relatorios">Relatórios</a></li>
+          <li role="none"><a role="menuitem" href="#modelo">Modelo</a></li>
+          <li role="none"><a role="menuitem" href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-wrap">
+        <div>
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Geoguard AI" style="height:92px; margin-bottom:14px; filter: drop-shadow(0 12px 24px rgba(0,0,0,.35))" />
+          <h1>Geoguard AI — Vigilância inteligente da floresta</h1>
+          <p class="lead">Detecção de desmatamento e vetores de risco na Amazônia. Monitoramento contínuo, alertas auditáveis e relatórios sob demanda.</p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap">
+            <a class="cta" href="#monitor">Abrir monitor</a>
+            <a class="cta secondary" href="#relatorios">Baixar relatórios</a>
+          </div>
+        </div>
+        <div class="card" aria-label="Pré-visualização" style="min-height:280px; padding:18px">
+          <pre aria-hidden="true" style="margin:0; white-space:pre-wrap;">
+// Endpoints (futuro):
+// GET /api/tiles/{yyyy-mm-dd}/{z}/{x}/{y}.png?layer=alertas
+// GET /api/reports?periodo=mensal&amp;area=amazonia
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="sobre" class="features container">
+      <h2>Sobre o projeto</h2>
+      <p class="lead">“Otimização e divulgação automatizada de dados de desmatamento da Amazônia”. Este site é o hub de demonstrações, documentação e atualização do modelo.</p>
+      <div class="grid" style="grid-template-columns:repeat(2,1fr); gap:18px">
+        <article class="card feature"><div style="padding:18px">
+          <h3>Segmentos atendidos</h3>
+          <p>ONGs ambientais, fiscalização (secretarias e forças-tarefa), pesquisadores e órgãos federais/estaduais.</p>
+        </div></article>
+        <article class="card feature"><div style="padding:18px">
+          <h3>Proposta de valor</h3>
+          <p>Alertas padronizados e auditáveis, filtrando ruído (nuvens/sombras) e priorizando áreas críticas com menor tempo entre dado e decisão.</p>
+        </div></article>
+      </div>
+    </section>
+
+    <section id="recursos" class="features">
+      <div class="container">
+        <h2>Recursos & Canais</h2>
+        <div class="features-grid">
+          <article class="card feature">
+            <div class="kpi" aria-label="Métricas" style="padding:18px">API</div>
+            <div style="padding:0 18px 18px">
+              <h3>APIs e Webhooks</h3>
+              <p>Integração com pipelines geoespaciais (GeoServer, QGIS). Entrega por e-mail, webhook e API REST.</p>
+            </div>
+          </article>
+          <article class="card feature">
+            <div class="kpi" aria-label="Métricas" style="padding:18px">DOCS</div>
+            <div style="padding:0 18px 18px">
+              <h3>Documentação</h3>
+              <p>Guias de uso, notas técnicas, relatórios de acurácia e changelog de versões do modelo.</p>
+            </div>
+          </article>
+          <article class="card feature">
+            <div class="kpi" aria-label="Métricas" style="padding:18px">LIVE</div>
+            <div style="padding:0 18px 18px">
+              <h3>Atualizações</h3>
+              <p>Dashboards e relatórios contínuos; blog técnico e roadmap público.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="monitor">
+      <div class="container">
+        <h2>Monitoramento da Amazônia</h2>
+        <div class="card viewer">
+          <div class="map-wrap">
+            <div class="map-badge">Amazônia — <span id="badgeDate">—</span> • Camada: <span id="badgeLayer">alertas</span></div>
+            <div id="map" class="map-frame">Mapa da Amazônia — feed ao vivo (placeholder)</div>
+          </div>
+          <div class="toolbar">
+            <label for="periodo" style="font-weight:700">Período</label>
+            <select id="periodo" aria-label="Periodicidade">
+              <option value="diario">Diário</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensal">Mensal</option>
+            </select>
+            <label for="dataRef" style="font-weight:700">Data</label>
+            <input id="dataRef" type="date" />
+            <div class="range">
+              <span style="min-width:60px">Linha do tempo</span>
+              <input id="timeline" type="range" min="0" max="10" step="1" value="0" style="width:100%" />
+            </div>
+            <button id="toggleLayer" class="cta secondary" type="button">Trocar camada</button>
+            <button id="play" class="cta" type="button">Animação</button>
+          </div>
+          <div class="legend">
+            <span><i class="lg-dot lg-risk"></i> Risco/Alerta</span>
+            <span><i class="lg-dot lg-clear"></i> Área preservada</span>
+            <span><i class="lg-dot lg-cloud"></i> Nuvem/Sombra (filtrado)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="relatorios" class="features">
+      <div class="container">
+        <h2>Relatórios</h2>
+        <p class="lead">Baixe relatórios periódicos após confirmar contato com a Geoguard AI. Assim garantimos acompanhamento e suporte técnico.</p>
+        <div class="reports-grid">
+          <article class="card report">
+            <h3>Relatório Mensal — Agosto/2025</h3>
+            <span class="meta">Cobertura: Amazônia Legal • Formato: PDF • ~8 MB</span>
+            <button class="cta" data-report="reports/relatorio-ago-2025.pdf" disabled>Baixar</button>
+            <span class="lock">🔒 Requer contato</span>
+          </article>
+          <article class="card report">
+            <h3>Relatório Semanal — Sem. 34 (2025)</h3>
+            <span class="meta">Anomalias de desmate + hotspots</span>
+            <button class="cta" data-report="reports/relatorio-semana-34-2025.pdf" disabled>Baixar</button>
+            <span class="lock">🔒 Requer contato</span>
+          </article>
+          <article class="card report">
+            <h3>Resumo Executivo — Q3/2025</h3>
+            <span class="meta">Tendências e áreas críticas priorizadas</span>
+            <button class="cta" data-report="reports/resumo-executivo-q3-2025.pdf" disabled>Baixar</button>
+            <span class="lock">🔒 Requer contato</span>
+          </article>
+        </div>
+        <div class="card" style="margin-top:18px; padding:18px">
+          <strong>Como liberar downloads?</strong>
+          <p style="margin:.5rem 0">Envie o formulário em <a href="#contato" style="color:var(--brand-2); font-weight:700">Contato</a>. Após confirmação, os botões serão habilitados automaticamente neste navegador.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="modelo" class="features">
+      <div class="container">
+        <h2>Modelo e Atualizações</h2>
+        <div class="grid" style="grid-template-columns:1.1fr .9fr; align-items:start">
+          <div class="card" style="padding:18px">
+            <h3>Versão atual</h3>
+            <p><strong id="model-version">v0.1.0</strong> — <span id="model-date">—</span></p>
+            <div class="grid">
+              <label for="newVersion">Nova versão</label>
+              <input id="newVersion" placeholder="ex.: v0.2.0" />
+              <label for="metrics">Métricas (JSON)</label>
+              <textarea id="metrics" rows="4" placeholder='{"iou":0.71,"precision":0.89,"recall":0.83}'></textarea>
+              <label for="notes">Notas do changelog</label>
+              <textarea id="notes" rows="3" placeholder="Correção de máscara de nuvem; ajuste de limiar para áreas críticas..."></textarea>
+              <button id="saveModel" class="cta" style="justify-content:center">Publicar atualização</button>
+              <p class="lead" id="saveFeedback" role="status" style="display:none; margin:0"></p>
+            </div>
+          </div>
+          <div class="card" style="padding:18px">
+            <h3>Changelog</h3>
+            <ul id="changelog" style="margin:0; padding-left:18px; display:grid; gap:10px"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contato" class="contact container">
+      <h2>Fale com a gente</h2>
+      <form class="card" aria-describedby="feedback">
+        <div style="padding:18px" class="grid">
+          <div>
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" autocomplete="name" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div>
+            <label for="org">Organização (opcional)</label>
+            <input id="org" name="org" />
+          </div>
+          <div>
+            <label for="msg">Mensagem</label>
+            <textarea id="msg" name="mensagem" rows="4" required placeholder="Solicito acesso aos relatórios..."></textarea>
+          </div>
+          <button type="submit" class="cta" style="justify-content:center">Enviar</button>
+          <p id="feedback" class="lead" role="status" aria-live="polite" style="margin:0; display:none"></p>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Geoguard AI — Todos os direitos reservados
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
