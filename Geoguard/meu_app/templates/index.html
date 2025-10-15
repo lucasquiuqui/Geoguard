@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
+
+<style>
+    #map {
+        height: 500px; /* Altura do mapa */
+        width: 100%;
+        border-radius: var(--radius);
+    }
+</style>
+
+<section class="hero">
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Geoguard AI" class="hero-logo" />
+    <h1>Geoguard AI</h1>
+    <p class="lead">Vigilância inteligente da floresta</p>
+  </div>
+</section>
+
+<section id="recursos" class="features">
+  <div class="container">
+    <h2>Recursos & Canais</h2>
+    <div class="features-grid">
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">API</div>
+        <div style="padding:0 18px 18px">
+          <h3>APIs e Webhooks</h3>
+          <p>Integração com pipelines geoespaciais (GeoServer, QGIS). Entrega por e-mail, webhook e API REST.</p>
+        </div>
+      </article>
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">DOCS</div>
+        <div style="padding:0 18px 18px">
+          <h3>Documentação</h3>
+          <p>Guias de uso, notas técnicas, relatórios de acurácia e changelog de versões do modelo.</p>
+        </div>
+      </article>
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">LIVE</div>
+        <div style="padding:0 18px 18px">
+          <h3>Atualizações</h3>
+          <p>Dashboards e relatórios contínuos; blog técnico e roadmap público.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="monitor">
+  <div class="container">
+    <h2>Monitoramento da Amazônia</h2>
+    <div class="card viewer" style="padding: 18px;">
+        <p class="lead" style="text-align: center; margin-top:0; margin-bottom: 24px;">Navegue pelo mapa e veja a camada de dados sobreposta, processada em tempo real.</p>
+        <div id="map"></div>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="{{ url_for('static', filename='js/map_loader.js') }}"></script>
+{% endblock %}

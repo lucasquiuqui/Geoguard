@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding: 56px 0;">
+
+    <div style="text-align: center; margin-bottom: 48px;">
+        <h1>Sobre o Projeto Sentinela da Amazônia</h1>
+        <p class="lead">Unindo Inteligência Artificial e sensoriamento remoto para a proteção da maior floresta tropical do planeta.</p>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+        <h2>O Desafio: Proteger um Território de Proporções Continentais</h2>
+        [cite_start]<p>A crescente devastação da Floresta Amazônica representa um dos maiores desafios ambientais e estratégicos do Brasil[cite: 43]. [cite_start]A perda de cobertura vegetal impacta diretamente o equilíbrio climático, a biodiversidade e os recursos hídricos, além de estar frequentemente associada a atividades ilícitas como garimpo, grilagem e narcotráfico[cite: 44]. [cite_start]A imensa extensão territorial da Amazônia e a dificuldade de acesso tornam o monitoramento em campo inviável, evidenciando a necessidade de soluções tecnológicas inteligentes[cite: 45].</p>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+        <h2>Nossa Solução: Tecnologia de Ponta a Serviço da Floresta</h2>
+        [cite_start]<p>O objetivo principal do projeto é desenvolver uma solução de Inteligência Artificial capaz de detectar e visualizar o desmatamento na Amazônia a partir de imagens de satélite Sentinel-2, disponibilizadas pelo programa europeu Copernicus[cite: 50]. [cite_start]O sistema gera alertas georreferenciados que auxiliam na tomada de decisão por parte das instituições responsáveis pela proteção da floresta[cite: 51], combinando um fluxo de trabalho robusto:</p>
+        <ul>
+            [cite_start]<li><strong>Dados do Copernicus:</strong> Utilizamos imagens gratuitas e de alta resolução do satélite Sentinel-2, que fornecem observações periódicas e detalhadas da superfície terrestre[cite: 28].</li>
+            [cite_start]<li><strong>Análise com QGIS:</strong> Empregamos o software QGIS, uma poderosa ferramenta de Sistema de Informação Geográfica (SIG), para manipular, analisar e preparar os dados espaciais antes da análise automatizada[cite: 30, 71].</li>
+            [cite_start]<li><strong>Inteligência Artificial em Python:</strong> As imagens pré-processadas são analisadas por um modelo de IA desenvolvido em Python, capaz de distinguir padrões e identificar alterações na cobertura vegetal com alta precisão[cite: 72].</li>
+            [cite_start]<li><strong>Visualização Web Interativa:</strong> Os resultados são integrados e exibidos em uma plataforma web pública, utilizando a biblioteca OpenLayers para construir mapas dinâmicos e de fácil acesso[cite: 32, 76].</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>Nossa Motivação</h2>
+        [cite_start]<p>Desenvolvido no âmbito da disciplina de Introdução a Projeto de Engenharia II do Instituto Militar de Engenharia (IME) e tendo o Comando Militar da Amazônia (CMA) como órgão beneficiado, este projeto busca fortalecer as capacidades tecnológicas nacionais voltadas à gestão ambiental e territorial[cite: 22, 23, 33]. [cite_start]Nosso trabalho se alinha aos Objetivos de Desenvolvimento Sustentável (ODS 13 e 15) da ONU, reforçando o compromisso social do engenheiro em desenvolver tecnologias que promovam a sustentabilidade, a eficiência e a soberania nacional[cite: 34, 166].</p>
+    </div>
+
+</div>
+{% endblock %}

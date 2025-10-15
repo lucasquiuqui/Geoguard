@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
+
+<style>
+    #map {
+        height: 75vh;
+        width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid var(--glass);
+    }
+</style>
+
+<div class="container" style="padding: 40px 0;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <h1>Monitoramento Interativo da Amazônia</h1>
+        <p class="lead">Navegue pelo mapa de base e veja a camada de dados sobreposta, processada em tempo real a partir de um arquivo GeoTIFF.</p>
+    </div>
+    
+    <div id="map" class="card"></div>
+</div>
+
+<script type="module" src="{{ url_for('static', filename='js/map_loader.js') }}"></script>
+{% endblock %}
