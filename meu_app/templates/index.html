@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- OpenLayers (mapa) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
+
+<style>
+  #map {
+    height: 500px;
+    width: 100%;
+    border-radius: var(--radius);
+  }
+
+  /* ===== HERO com logo ao lado do título ===== */
+  .hero {
+    padding: clamp(40px, 8vw, 96px) 0 32px;
+  }
+
+  .hero-head {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 2vw, 20px);
+    flex-wrap: nowrap;
+  }
+
+  .hero-logo {
+    width: clamp(56px, 7vw, 88px);
+    height: clamp(56px, 7vw, 88px);
+    object-fit: contain;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    flex: 0 0 auto;
+  }
+
+  .hero-title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-title h1 {
+    margin: 0;
+    line-height: 1.06;
+    font-size: clamp(28px, 5.2vw, 64px);
+  }
+
+  .hero-title .lead {
+    margin: 6px 0 0;
+    font-size: clamp(14px, 2.2vw, 20px);
+    color: var(--muted);
+  }
+
+  @media (max-width: 560px) {
+    .hero-head {
+      flex-wrap: wrap;
+    }
+
+    .hero-title .lead {
+      margin-top: 4px;
+    }
+  }
+</style>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-head" aria-label="Identidade do produto">
+      <img src="/static/images/logo.png" alt="Geoguard AI" class="hero-logo" />
+      <div class="hero-title">
+        <h1>Geoguard AI</h1>
+        <p class="lead">Vigilância inteligente da floresta</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECURSOS -->
+<section id="recursos" class="features">
+  <div class="container">
+    <h2>Recursos & Canais</h2>
+    <div class="features-grid">
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">API</div>
+        <div style="padding:0 18px 18px">
+          <h3>APIs e Webhooks</h3>
+          <p>Integração com pipelines geoespaciais (GeoServer, QGIS). Entrega por e-mail, webhook e API REST.</p>
+        </div>
+      </article>
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">DOCS</div>
+        <div style="padding:0 18px 18px">
+          <h3>Documentação</h3>
+          <p>Guias de uso, notas técnicas, relatórios de acurácia e changelog de versões do modelo.</p>
+        </div>
+      </article>
+      <article class="card feature">
+        <div class="kpi" aria-label="Métricas" style="padding:18px">LIVE</div>
+        <div style="padding:0 18px 18px">
+          <h3>Atualizações</h3>
+          <p>Dashboards e relatórios contínuos; blog técnico e roadmap público.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- MONITOR -->
+<section id="monitor">
+  <div class="container">
+    <h2>Monitoramento da Amazônia</h2>
+
+    <!-- Contêiner principal: painel lateral + mapa -->
+    <div class="main-container card viewer">
+
+      <!-- Painel lateral -->
+      <aside id="image-controls-container">
+        <h3>Controle de Camadas</h3>
+        <p style="color: var(--muted); font-size: 14px;">
+          Ajuste as camadas, filtros e parâmetros da visualização.
+        </p>
+        <!-- Aqui entra o painel dinâmico de camadas -->
+        <div id="layer-controls"></div>
+      </aside>
+
+      <!-- Mapa -->
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+
+    </div> <!-- fim main-container -->
+  </div> <!-- fim container -->
+</section>
+
+<!-- Loader do mapa -->
+<script type="module" src="/static/js/map_loader.js"></script>
+
+{% endblock %}

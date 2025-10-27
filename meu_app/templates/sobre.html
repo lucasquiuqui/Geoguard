@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="about">
+  <div class="container">
+    <!-- margem superior ajustada: afasta do cabeçalho e do banner fixo -->
+    <article class="about-box" style="margin-top: calc(var(--banner-h, 0px) + 24px);">
+      <header class="about-header">
+        <h1>Sobre o Projeto Sentinela da Amazônia</h1>
+        <p class="lead">Unindo Inteligência Artificial e sensoriamento remoto para a proteção da maior floresta tropical do planeta.</p>
+      </header>
+
+      <section class="about-block">
+        <h2>O Desafio: Proteger um Território de Proporções Continentais</h2>
+        <p>A crescente devastação da Floresta Amazônica representa um dos maiores desafios ambientais e estratégicos do Brasil. A perda de cobertura vegetal impacta diretamente o equilíbrio climático, a biodiversidade e os recursos hídricos, além de estar frequentemente associada a atividades ilícitas como garimpo, grilagem e narcotráfico. A imensa extensão territorial da Amazônia e a dificuldade de acesso tornam o monitoramento em campo inviável, evidenciando a necessidade de soluções tecnológicas inteligentes.</p>
+      </section>
+
+      <section class="about-block">
+        <h2>Nossa Solução: Tecnologia a Serviço da Floresta</h2>
+        <p>Este site demonstra o desmatamento relativo ao ano de <strong>2022</strong>, comprovando o correto desenvolvimento e funcionamento do pipeline de dados do Geoguard AI. Em caso de aquisição ou contrato estabelecido, a Geoguard AI disponibilizará <strong>imagens e alertas em tempo real</strong>.</p>
+        <ul>
+          <li><strong>Dados do Copernicus (Sentinel-2):</strong> imagens gratuitas, periódicas e de alta resolução.</li>
+          <li><strong>Análise com QGIS:</strong> preparo e manipulação espacial antes da análise automatizada.</li>
+          <li><strong>IA em Python:</strong> detecção de padrões e mudanças na cobertura vegetal.</li>
+          <li><strong>Visualização Web (OpenLayers):</strong> mapas dinâmicos acessíveis ao público.</li>
+        </ul>
+      </section>
+
+      <section class="about-block">
+        <h2>Nossa Motivação</h2>
+        <p>Desenvolvido no âmbito da disciplina de Introdução a Projeto de Engenharia II do Instituto Militar de Engenharia (IME) e tendo o Comando Militar da Amazônia (CMA) como órgão beneficiado, este projeto busca fortalecer as capacidades tecnológicas nacionais voltadas à gestão ambiental e territorial. Alinha-se aos ODS 13 e 15 da ONU, reforçando o compromisso em desenvolver tecnologias que promovam sustentabilidade, eficiência e soberania.</p>
+      </section>
+    </article>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- ======================== QUEM NÓS SOMOS ======================== -->
+<section id="quem-somos" class="team-section">
+  <div class="container">
+    <h2>Quem nós somos?</h2>
+    <p class="lead">Somos uma equipe multidisciplinar comprometida em proteger a Amazônia por meio de tecnologia, dados e inteligência artificial.</p>
+
+    <div class="team-wrapper">
+      <!-- Integrante 1 -->
+      <div class="team-member">
+        <img src="/static/images/quiuqui.jpg" alt="Lucas Quiuqui — Front-end">
+        <div class="team-info">
+          <h3>Lucas Quiuqui</h3>
+          <p class="role">Front-end — criação e personalização do site</p>
+          <p class="bio">Desenvolveu a arquitetura de interface, componentes e estilização; implementou o tema e a responsividade do portal Geoguard AI.</p>
+        </div>
+      </div>
+
+      <!-- Integrante 2 -->
+      <div class="team-member">
+        <img src="/static/images/nobrega.jpg" alt="Brenno Lopes Nóbrega — Front-end">
+        <div class="team-info">
+          <h3>Brenno Lopes Nóbrega</h3>
+          <p class="role">Front-end — criação e personalização do site</p>
+          <p class="bio">Integra a IA com a plataforma web, construindo interfaces e APIs que tornam o monitoramento acessível e intuitivo.</p>
+        </div>
+      </div>
+
+      <!-- Integrante 3 -->
+      <div class="team-member">
+        <img src="/static/images/mateus-alves.jpg" alt="Mateus Alves — Parte técnica">
+        <div class="team-info">
+          <h3>Mateus Alves</h3>
+          <p class="role">Parte técnica — escrita e relatórios</p>
+          <p class="bio">Autor das notas técnicas, documentação metodológica e relatórios; organiza métricas e resultados para comunicação com stakeholders.</p>
+        </div>
+      </div>
+
+      <!-- Integrante 4 -->
+      <div class="team-member">
+        <img src="/static/images/guilherme.jpg" alt="Guilherme — Back-end">
+        <div class="team-info">
+          <h3>Guilherme</h3>
+          <p class="role">Back-end — integração do modelo e dados</p>
+          <p class="bio">Cuida das APIs e serviços de integração com o modelo de mapeamento.</p>
+        </div>
+      </div>
+
+      <!-- Integrante 5 -->
+      <div class="team-member">
+        <img src="/static/images/harley.jpg" alt="Caio Harley — Back-end">
+        <div class="team-info">
+          <h3>Caio Harley</h3>
+          <p class="role">Back-end — integração do modelo e dados</p>
+          <p class="bio">Implementa a gestão e preparação de dados; integra a inferência do modelo aos fluxos de atualização do monitor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
