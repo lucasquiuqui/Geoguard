@@ -1,0 +1,27 @@
+# Arquivo: Dockerfile
+
+# 1. Use uma imagem base oficial do Python
+FROM python:3.10-slim
+
+# 2. Defina o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# 3. Instale as dependências de sistema (GDAL) que o 'rasterio' precisa
+# Esta é a parte crucial para o seu projeto de mapas funcionar
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 4. Copie o arquivo de requisitos e instale as bibliotecas Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 5. Copie todo o código do seu projeto para o contêiner
+# (Isso inclui run.py, e as pastas meu_app/, static/, templates/)
+COPY . .
+
+# 6. Diga ao Cloud Run como iniciar seu aplicativo
+#    Ele executará o 'gunicorn' apontando para o seu arquivo 'run.py'
+#    e a variável 'app' dentro dele.
+CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "run:app"]

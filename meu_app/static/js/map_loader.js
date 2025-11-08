@@ -1,56 +1,28 @@
-// Arquivo: meu_app/static/js/map_loader.js
+// Arquivo: meu_app/static/js/map_loader.js (Atualizado com Risco Baixo)
 
 let map;
 let currentImageLayer;
+let layerDataStore = {};
 
 async function createMap() {
     try {
-        // Primeiro, busca a lista de imagens disponíveis
         const imagesResponse = await fetch('/images');
         if (!imagesResponse.ok) {
             throw new Error('Falha ao buscar lista de imagens');
         }
         
         const imageList = await imagesResponse.json();
-        console.log('Imagens TIF encontradas:', imageList);
+        console.log('Dados das camadas recebidos:', imageList);
         
         if (imageList.length === 0) {
-            throw new Error('Nenhuma imagem TIF encontrada na pasta static/images/GeoTIFs');
+            throw new Error('Nenhuma imagem TIF encontrada e mapeada em routes.py');
         }
 
-        // Filtra apenas arquivos TIF
-        const tifImages = imageList.filter(img => 
-            img.toLowerCase().endsWith('.tif') || 
-            img.toLowerCase().endsWith('.tiff')
-        );
-        
-        if (tifImages.length === 0) {
-            throw new Error('Nenhum arquivo .tif ou .tiff encontrado na pasta static/images/GeoTIFs');
-        }
+        imageList.forEach(layer => {
+            layerDataStore[layer.filename] = layer;
+        });
 
-        console.log('Arquivos TIF filtrados:', tifImages);
-
-        // Adiciona controle de seletor de imagens PRIMEIRO
-        addImageSelector(tifImages); // <--- ESTA FUNÇÃO SERÁ SUBSTITUÍDA
-
-        // Usa a primeira imagem TIF da lista
-        const firstImage = tifImages[0];
-        
-        // Busca os bounds da imagem selecionada
-        const boundsResponse = await fetch(`/bounds/${firstImage}`);
-        if (!boundsResponse.ok) {
-            // Fallback para rota legada
-            console.log('Tentando rota legada /bounds...');
-            const legacyBoundsResponse = await fetch('/bounds');
-            if (!legacyBoundsResponse.ok) {
-                throw new Error('Falha ao buscar os limites da imagem');
-            }
-            const legacyData = await legacyBoundsResponse.json();
-            await loadImageWithData(firstImage, legacyData);
-        } else {
-            const data = await boundsResponse.json();
-            await loadImageWithData(firstImage, data);
-        }
+        await initializeMapWithLayers(imageList);
 
     } catch (error) {
         console.error("Erro ao criar o mapa:", error);
@@ -58,26 +30,46 @@ async function createMap() {
     }
 }
 
-async function loadImageWithData(imageFilename, data) {
+async function initializeMapWithLayers(imageList) {
+    addImageSelector(imageList);
+
+    const firstImage = imageList[0];
+    const firstImageFilename = firstImage.filename;
+    const firstImageFriendlyName = firstImage.name;
+    
+    const boundsResponse = await fetch(`/bounds/${firstImageFilename}`);
+    if (!boundsResponse.ok) {
+        const legacyBoundsResponse = await fetch('/bounds');
+        if (!legacyBoundsResponse.ok) {
+            throw new Error('Falha ao buscar os limites da imagem');
+        }
+        const legacyData = await legacyBoundsResponse.json();
+        await loadImageWithData(firstImageFilename, firstImageFriendlyName, legacyData);
+    } else {
+        const data = await boundsResponse.json();
+        await loadImageWithData(firstImageFilename, firstImageFriendlyName, data);
+    }
+
+    if (map) {
+        addGradientLegendToMap();
+    }
+}
+
+
+async function loadImageWithData(imageFilename, friendlyName, data) {
     try {
         const imageBounds = data.extent;
         const imageProjection = data.projection;
 
-        console.log('Bounds da imagem:', imageBounds);
-        console.log('Projeção:', imageProjection);
-
-        // Remove layer anterior se existir
         if (currentImageLayer) {
             map.removeLayer(currentImageLayer);
         }
 
-        // Cria camada base (se o mapa ainda não existe)
         if (!map) {
             const baseLayer = new ol.layer.Tile({
                 source: new ol.source.OSM()
             });
 
-            // Cria o mapa (versão simplificada - sem controles problemáticos)
             map = new ol.Map({
                 target: 'map',
                 layers: [baseLayer],
@@ -89,7 +81,6 @@ async function loadImageWithData(imageFilename, data) {
             });
         }
 
-        // Cria camada da imagem
         currentImageLayer = new ol.layer.Image({
             source: new ol.source.ImageStatic({
                 url: `/tile/${imageFilename}`,
@@ -101,7 +92,6 @@ async function loadImageWithData(imageFilename, data) {
 
         map.addLayer(currentImageLayer);
 
-        // Atualiza a view para a nova imagem
         const transformedExtent = ol.proj.transformExtent(
             imageBounds, 
             imageProjection, 
@@ -113,8 +103,8 @@ async function loadImageWithData(imageFilename, data) {
             duration: 1000
         });
 
-        // Atualiza a informação da imagem selecionada
-        updateSelectedImageInfo(imageFilename);
+        const stats = layerDataStore[imageFilename]?.stats;
+        updateSelectedImageInfo(friendlyName, stats);
 
         console.log(`Imagem ${imageFilename} carregada com sucesso`);
 
@@ -130,12 +120,10 @@ async function updateImageLayer(imageFilename) {
     try {
         console.log('Carregando imagem:', imageFilename);
         
-        // Remove layer anterior se existir
         if (currentImageLayer) {
             map.removeLayer(currentImageLayer);
         }
 
-        // Busca bounds da nova imagem
         const boundsResponse = await fetch(`/bounds/${imageFilename}`);
         if (!boundsResponse.ok) {
             throw new Error('Falha ao buscar limites da imagem');
@@ -145,9 +133,6 @@ async function updateImageLayer(imageFilename) {
         const imageBounds = data.extent;
         const imageProjection = data.projection;
 
-        console.log('Novos bounds:', imageBounds);
-
-        // Cria nova layer
         currentImageLayer = new ol.layer.Image({
             source: new ol.source.ImageStatic({
                 url: `/tile/${imageFilename}`,
@@ -159,7 +144,6 @@ async function updateImageLayer(imageFilename) {
 
         map.addLayer(currentImageLayer);
 
-        // Atualiza a view para a nova imagem
         const transformedExtent = ol.proj.transformExtent(
             imageBounds, 
             imageProjection, 
@@ -171,8 +155,11 @@ async function updateImageLayer(imageFilename) {
             duration: 1000
         });
 
-        // Atualiza a informação da imagem selecionada
-        updateSelectedImageInfo(imageFilename);
+        const layerData = layerDataStore[imageFilename];
+        const friendlyName = layerData?.name || imageFilename;
+        const stats = layerData?.stats;
+        
+        updateSelectedImageInfo(friendlyName, stats);
 
         console.log(`Imagem ${imageFilename} atualizada com sucesso`);
 
@@ -182,49 +169,29 @@ async function updateImageLayer(imageFilename) {
     }
 }
 
-// ===================================================================
-// INÍCIO DA FUNÇÃO CORRIGIDA
-// ===================================================================
 function addImageSelector(imageList) {
-    // Remove o painel antigo que estava no HTML (ex: o <aside> em index.html)
-    const existingSelector = document.getElementById('image-controls-container');
-    if (existingSelector) {
-        existingSelector.remove();
+    const controlsContainer = document.getElementById('image-controls-container');
+    const panelContent = controlsContainer ? controlsContainer.querySelector('.control-panel') : null;
+
+    if (!panelContent) {
+        console.error('Elemento .control-panel não foi encontrado.');
+        if(controlsContainer) controlsContainer.innerHTML = '';
+        else return; 
+    } else {
+        panelContent.innerHTML = '';
     }
 
-    // Cria container principal para controles - A BARRA SUPERIOR
-    const controlsContainer = document.createElement('div');
-    controlsContainer.id = 'layer-controls-bar';
-    controlsContainer.style.cssText = `
-        display: flex;
-        flex-wrap: wrap; 
-        align-items: center;
-        gap: 15px; 
-        padding: 10px 20px;
-        background: #0f2619; 
-        border-bottom: 1px solid rgba(255, 255, 255, .1);
-        width: 100%;
-        color: #eefcf3; 
-        font-family: 'Poppins', sans-serif;
-        z-index: 900; 
-        border-radius: var(--radius); /* Adiciona bordas arredondadas */
-        margin-bottom: 20px; /* Adiciona espaço abaixo da barra */
-        box-shadow: var(--shadow); /* Adiciona a sombra do seu tema */
-        border-top: 1px solid rgba(255, 255, 255, .1); /* Consistência visual */
-    `;
+    const destinationContainer = panelContent || controlsContainer;
 
-    // Título da seção
     const title = document.createElement('div');
+    title.className = 'control-title'; 
     title.style.cssText = `
-        font-size: 16px;
-        font-weight: 600;
-        color: #eefcf3;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        font-size: 18px; font-weight: 600; color: var(--text, #1f2937);
+        margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+        padding-bottom: 12px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     `;
     title.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
             <polyline points="21 15 16 10 5 21"></polyline>
@@ -232,139 +199,203 @@ function addImageSelector(imageList) {
         Controle de Camadas
     `;
 
-    // Container do seletor
     const selectorGroup = document.createElement('div');
-    selectorGroup.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    `;
+    selectorGroup.style.marginBottom = '16px';
 
     const label = document.createElement('label');
     label.textContent = 'Selecionar Camada:';
     label.style.cssText = `
-        font-size: 14px;
-        font-weight: 500;
-        color: #cde8d8; 
+        display: block; font-size: 14px; font-weight: 500;
+        color: var(--muted, #374151); margin-bottom: 8px;
     `;
 
     const select = document.createElement('select');
     select.id = 'image-selector';
     select.style.cssText = `
-        padding: 6px 10px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, .14);
-        background: #0a2012; 
-        font-size: 14px;
-        color: #eefcf3;
-        cursor: pointer;
+        width: 100%; padding: 12px; border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--bg, #FFFFFF); font-size: 14px;
+        color: var(--text, #374151); cursor: pointer;
+        transition: all 0.2s ease; margin-bottom: 12px;
     `;
 
-    select.innerHTML = imageList.map(img => 
-        `<option value="${img}">${img}</option>`
+    select.innerHTML = imageList.map(imgObject => 
+        `<option value="${imgObject.filename}">${imgObject.name}</option>`
     ).join('');
+
+    select.addEventListener('mouseenter', () => { select.style.borderColor = 'var(--brand-2, #3b82f6)'; });
+    select.addEventListener('mouseleave', () => { select.style.borderColor = 'rgba(255, 255, 255, 0.2)'; });
+    select.addEventListener('focus', () => { select.style.borderColor = 'var(--brand-2, #3b82f6)'; });
+    select.addEventListener('blur', () => { select.style.borderColor = 'rgba(255, 255, 255, 0.2)'; });
 
     select.addEventListener('change', (e) => {
         updateImageLayer(e.target.value);
     });
 
-    // Informações da imagem selecionada
     const selectedInfo = document.createElement('div');
     selectedInfo.id = 'selected-image-info';
     selectedInfo.style.cssText = `
-        background: #0a2012;
-        border-radius: 8px;
-        padding: 6px 12px;
-        border-left: 4px solid #7be495; 
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        background: var(--bg2, #f8fafc); border-radius: 8px;
+        padding: 16px; border-left: 4px solid var(--brand, #3b82f6);
+        margin-bottom: 16px;
     `;
 
-    selectedInfo.innerHTML = `
-        <div style="font-size: 13px; color: #cde8d8;">Camada Atual:</div>
-        <div id="current-image-name" style="font-size: 14px; color: #eefcf3; font-weight: 500;"></div>
+    const statsContainer = document.createElement('div');
+    statsContainer.style.cssText = `
+        background: rgba(123, 228, 149, 0.1); border-radius: 8px;
+        padding: 12px; border: 1px solid rgba(123, 228, 149, 0.2);
+        margin-bottom: 16px;
     `;
 
-    // Monta a estrutura da barra
+    statsContainer.innerHTML = `
+        <div style="font-size: 13px; color: var(--brand-2, #0369a1); font-weight: 500; margin-bottom: 6px;">📊 Estatísticas Gerais</div>
+        <div style="font-size: 12px; color: var(--muted, #0c4a6e);">
+            <div>• ${imageList.length} camada(s) carregada(s)</div>
+            <div>• Formato: GeoTIFF</div>
+            <div>• Projeção: Dinâmica</div>
+        </div>
+    `;
+
     selectorGroup.appendChild(label);
     selectorGroup.appendChild(select);
 
-    controlsContainer.appendChild(title);
-    controlsContainer.appendChild(selectorGroup);
-    controlsContainer.appendChild(selectedInfo);
+    destinationContainer.appendChild(title);
+    destinationContainer.appendChild(selectorGroup);
+    destinationContainer.appendChild(selectedInfo);
+    destinationContainer.appendChild(statsContainer);
     
-    // --- MUDANÇA NA INSERÇÃO ---
-    // Agora, vamos inserir a barra logo antes do container do mapa.
-    const mapElement = document.getElementById('map');
-    
-    // O elemento 'map' está dentro de um '.map-container' em ambos os HTMLs
-    const mapContainer = mapElement ? mapElement.closest('.map-container') : null;
-    
-    // O '.map-container' está dentro de um bloco maior 
-    // ('.main-container' em index.html ou '.monitor-container' em monitor.html)
-    const mainMapBlock = mapContainer ? mapContainer.parentElement : null;
+    const firstImage = imageList[0];
+    updateSelectedImageInfo(firstImage.name, firstImage.stats);
+}
 
-    if (mainMapBlock) {
-        // Insere a barra de controles *ANTES* desse bloco principal do mapa
-        // Isso a colocará depois do H1/H2 (título) e antes do mapa
-        mainMapBlock.before(controlsContainer);
-    } else if (mapElement) {
-        // Fallback: se não achar a estrutura esperada, insere antes do próprio mapa
-        mapElement.before(controlsContainer);
-    } else {
-        // Fallback 2: (Lógica antiga) insere no 'main'
-        const mainElement = document.querySelector('main');
-        if (mainElement) {
-            mainElement.prepend(controlsContainer);
+// ==========================================================
+// FUNÇÃO: ADICIONAR LEGENDA GRADIENTE AO MAPA
+// (Esta é a sua versão preferida, com 56x140)
+// ==========================================================
+function addGradientLegendToMap() {
+    const legendDiv = document.createElement('div');
+    legendDiv.className = 'ol-control legend-control';
+    legendDiv.style.cssText = `
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 7px; /* AJUSTADO: 70% de 10px */
+        border-radius: 8px;
+        position: absolute;
+        bottom: 15px; 
+        left: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+
+    const legendImage = document.createElement('img');
+    legendImage.src = '/generate_legend_image';
+    legendImage.alt = 'Legenda de Risco';
+    legendImage.style.cssText = `
+        width: 56px; /* AJUSTADO: 70% de 80px */
+        height: 140px; /* AJUSTADO: 70% de 200px */
+        object-fit: contain;
+        margin-bottom: 5px;
+        filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5));
+    `;
+    legendDiv.appendChild(legendImage);
+
+    const legendControl = new ol.control.Control({
+        element: legendDiv
+    });
+
+    map.addControl(legendControl);
+}
+// ==========================================================
+
+
+// ==========================================================
+// FUNÇÃO: ATUALIZAR INFO - CORRIGIDA
+// (Exibe Risco Alto, Médio e Baixo)
+// ==========================================================
+function updateSelectedImageInfo(displayName, stats) {
+    const infoElement = document.getElementById('selected-image-info');
+    if (!infoElement) return;
+
+    let highRiskText = "Calculando...";
+    let mediumRiskText = "Calculando...";
+    let lowRiskText = "Calculando..."; // NOVO
+
+    if (stats) {
+        // Lógica para Risco Alto
+        if (stats.high_risk_percentage === "N/A") {
+            highRiskText = "Erro no cálculo (Alto)";
+        } else if (stats.high_risk_percentage !== undefined) {
+            highRiskText = `${stats.high_risk_percentage}% de Risco Alto`;
         } else {
-            document.body.prepend(controlsContainer);
+            highRiskText = "Estatística (Alto) N/D";
         }
+
+        // Lógica para Risco Médio
+        if (stats.medium_risk_percentage === "N/A") {
+            mediumRiskText = "Erro no cálculo (Médio)";
+        } else if (stats.medium_risk_percentage !== undefined) {
+            mediumRiskText = `${stats.medium_risk_percentage}% de Risco Médio`;
+        } else {
+            mediumRiskText = "Estatística (Médio) N/D";
+        }
+        
+        // Lógica para Risco Baixo (NOVO)
+        if (stats.low_risk_percentage === "N/A") {
+            lowRiskText = "Erro no cálculo (Baixo)";
+        } else if (stats.low_risk_percentage !== undefined) {
+            lowRiskText = `${stats.low_risk_percentage}% de Risco Baixo`;
+        } else {
+            lowRiskText = "Estatística (Baixo) N/D";
+        }
+        
+    } else {
+         highRiskText = "Estatísticas não disponíveis";
+         mediumRiskText = ""; 
+         lowRiskText = ""; // NOVO
     }
 
-    // --- REMOVE AJUSTE ANTIGO DO MAPA ---
-    // Remove as linhas que ajustavam a margem esquerda do mapa
-    if (mapElement) {
-        mapElement.style.marginLeft = '0';
-        mapElement.style.width = '100%';
-    }
 
-    // Atualiza a informação da primeira imagem
-    updateSelectedImageInfo(imageList[0]);
+    infoElement.innerHTML = `
+        <div style="font-size: 13px; color: var(--muted, #6b7280); margin-bottom: 4px;">Camada Atual:</div>
+        <div id="current-image-name" style="font-size: 16px; color: var(--text, #1f2937); font-weight: 600; word-break: break-word; margin-bottom: 8px;">
+            ${displayName}
+        </div>
+        
+        <div style="font-size: 14px; color: #dc3545; font-weight: 500;">
+            ${highRiskText}
+        </div>
+
+        <div style="font-size: 14px; color: #EAB308; font-weight: 500; margin-top: 4px;">
+            ${mediumRiskText}
+        </div>
+
+        <div style="font-size: 14px; color: #22c55e; font-weight: 500; margin-top: 4px;">
+            ${lowRiskText}
+        </div>
+    `;
 }
-// ===================================================================
-// FIM DA FUNÇÃO CORRIGIDA
-// ===================================================================
+// ==========================================================
 
-
-function updateSelectedImageInfo(filename) {
-    const infoElement = document.getElementById('current-image-name');
-    if (infoElement) {
-        infoElement.textContent = filename;
-    }
-}
 
 function showError(message) {
     const mapDiv = document.getElementById('map');
     if (mapDiv) {
         mapDiv.innerHTML = `
-            <div style="text-align:center; padding: 40px; color: #666; background: #f8f9fa; border-radius: 8px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="text-align:center; padding: 40px; color: var(--muted, #666); background: var(--panel, #f8f9fa); border-radius: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                 <div style="font-size: 48px; color: #dc3545; margin-bottom: 16px;">🗺️</div>
                 <h3 style="color: #dc3545; margin-bottom: 15px;">Não foi possível carregar o mapa</h3>
                 <p style="margin-bottom: 10px; max-width: 400px;">${message}</p>
-                <p style="font-size: 14px; color: #888; margin-bottom: 20px;">
-                    Verifique se existem arquivos .tif na pasta <strong>static/images/GeoTIFs</strong>
+                <p style="font-size: 14px; color: var(--muted, #888); margin-bottom: 20px;">
+                    Verifique o mapa <strong>FRIENDLY_NAMES_MAP</strong> em <strong>routes.py</strong> e a pasta <strong>static/images/GeoTIFs</strong>
                 </p>
                 <button onclick="location.reload()" style="
-                    padding: 10px 20px;
-                    background: #007bff;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 500;
-                    transition: background 0.2s;
-                " onmouseover="this.style.background='#0056b3'" onmouseout="this.style.background='#007bff'">
+                            padding: 10px 20px; background: var(--brand, #007bff); color: white;
+                            border: none; border-radius: 6px; cursor: pointer;
+                            font-weight: 500; transition: background 0.2s;
+                " onmouseover="this.style.background='var(--brand-2, #0056b3)'" onmouseout="this.style.background='var(--brand, #007bff)'">
                     Tentar Novamente
                 </button>
             </div>
@@ -373,39 +404,25 @@ function showError(message) {
 }
 
 function showAlert(message) {
-    // Remove alertas anteriores
     const existingAlert = document.getElementById('map-alert');
     if (existingAlert) {
         existingAlert.remove();
     }
-
-    // Cria novo alerta - CENTRALIZADO
     const alert = document.createElement('div');
     alert.id = 'map-alert';
     alert.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
+        position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        background: #fef2f2;
-        color: #dc2626;
-        padding: 16px 20px;
-        border-radius: 8px;
-        border: 1px solid #fecaca;
-        z-index: 1001;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #fef2f2; color: #dc2626;
+        padding: 16px 20px; border-radius: 8px; border: 1px solid #fecaca;
+        z-index: 1001; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        max-width: 400px;
-        text-align: center;
-        font-size: 14px;
+        max-width: 400px; text-align: center; font-size: 14px;
     `;
     alert.textContent = message;
-
     const mapElement = document.getElementById('map');
     if (mapElement) {
         mapElement.appendChild(alert);
-        
-        // Remove o alerta após 5 segundos
         setTimeout(() => {
             if (alert.parentNode) {
                 alert.remove();
@@ -414,10 +431,6 @@ function showAlert(message) {
     }
 }
 
-// Função para debug - verifica se o script foi carregado
-console.log('map_loader.js carregado com sucesso');
-
-// Inicializa o mapa quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM carregado, inicializando mapa...');
     if (document.getElementById('map')) {
@@ -427,6 +440,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Exporta funções para uso global (se necessário)
 window.createMap = createMap;
 window.updateImageLayer = updateImageLayer;
