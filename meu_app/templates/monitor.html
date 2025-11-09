@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/monitor.css') }}">
+
+<div class="monitor-page-container">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <h1>Monitoramento Interativo da Amazônia</h1>
+        <p class="lead">Navegue pelo mapa e veja as camadas de dados sobrepostas processadas em tempo real.</p>
+    </div>
+    
+    <div class="monitor-container">
+        
+        <div id="image-controls-container">
+            <div class="control-panel">
+                <div style="text-align: center; padding: 40px 20px; color: #6b7280; margin-top: 50px;">
+                    <div style="margin-bottom: 10px;">Carregando camadas GeoTIFF...</div>
+                    <div style="font-size: 12px;">As camadas serão listadas aqui em breve</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div id="map" class="card"></div>
+        </div>
+
+    </div>
+    
+    <div class="instructions-box">
+        <h4>📋 Instruções de Uso:</h4>
+        <p><strong>• Selecione camadas:</strong> Use o painel à esquerda para escolher entre as imagens GeoTIFF disponíveis</p>
+        <p><strong>• Navegação no mapa:</strong> Arraste para mover e use a roda do mouse para zoom</p>
+        <p><strong>• Visualização:</strong> Camadas são sobrepostas com 80% de opacidade para melhor análise</p>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/map_loader.js') }}"></script>
+{% endblock %}
