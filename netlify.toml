@@ -1,0 +1,8 @@
+[build]
+  # 1) instala Python deps
+  # 2) roda seu build do front (ajuste os comandos conforme o seu projeto)
+  command = "pip install -r requirements.txt && npm ci && npm run build"
+  publish = "dist"   # troque para a pasta final do seu site: dist, build, public, etc.
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
