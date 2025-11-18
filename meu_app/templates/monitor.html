@@ -8,7 +8,7 @@
 
 <div class="monitor-page-container">
     <div style="text-align: center; margin-bottom: 24px;">
-        <h1>Monitoramento Interativo da Amazônia</h1>
+        <h1>Monitoramento raga Interativo da Amazônia</h1>
         <p class="lead">Navegue pelo mapa e veja as camadas de dados sobrepostas processadas em tempo real.</p>
     </div>
     
@@ -29,12 +29,30 @@
 
     </div>
     
+    <!-- Box de instruções rápidas -->
     <div class="instructions-box">
         <h4>📋 Instruções de Uso:</h4>
-        <p><strong>• Selecione camadas:</strong> Use o painel à esquerda para escolher entre as imagens GeoTIFF disponíveis</p>
-        <p><strong>• Navegação no mapa:</strong> Arraste para mover e use a roda do mouse para zoom</p>
-        <p><strong>• Visualização:</strong> Camadas são sobrepostas com 80% de opacidade para melhor análise</p>
+        <p><strong>• Selecione camadas:</strong> Use o painel à esquerdapara escolher entre as imagens GeoTIFF disponíveis.</p>
+        <p><strong>• Navegação no mapa:</strong> Arraste para mover e use a roda do mouse para zoom.</p>
+        <p><strong>• Visualização:</strong> Camadas são sobrepostas com 80% de opacidade para melhor análise.</p>
     </div>
+
+    <!-- Box com link para o Manual do Usuário -->
+    <div class="manual-box">
+        <h4>📘 Manual do Usuário</h4>
+        <p>
+            Para um passo a passo detalhado de todas as funções da plataforma,
+            faça o download do manual completo em PDF.
+        </p>
+        <a
+            href="{{ url_for('static', filename='docs/manual_usuario_geoguard.pdf') }}"
+            class="manual-download-btn"
+            download
+        >
+            ⬇ Baixar Manual do Usuário (PDF)
+        </a>
+    </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='js/map_loader.js') }}"></script>

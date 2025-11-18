@@ -1,8 +1,349 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container" style="padding: 56px 0;">
-    <h1>Relatórios</h1>
-    <p class="lead">A seção para download de relatórios será construída aqui.</p>
-</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Geoguard AI — Downloads</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0a2012; --bg2:#0f2b18; --text:#eefcf3; --muted:#cde8d8;
+      --brand:#1b8a49; --brand-2:#7be495; --radius:20px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;
+      color:var(--text); background:linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+    .container{ width:min(1000px,92vw); margin-inline:auto; padding:32px 0 54px; }
+
+    /* ==== Download Hero (box inicial) ==== */
+    .download-hero{
+      position: relative;
+      margin: 0 0 26px;
+      padding: clamp(18px, 3vw, 28px);
+      border-radius: 26px;
+      background:
+        radial-gradient(70% 120% at 10% -10%, rgba(123,228,149,.12) 0%, transparent 55%),
+        radial-gradient(70% 120% at 100% 0%, rgba(27,138,73,.10) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+    .download-hero__left{ display: grid; gap: 10px; }
+    .download-hero h2{ margin: 0; font-size: clamp(22px, 2.8vw, 32px); line-height: 1.15; }
+    .download-hero p{ margin: 0; color: var(--muted); font-size: clamp(14px, 2vw, 16px); }
+    .download-hero__actions{ display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding: 12px 14px; border-radius: 14px; text-decoration: none; cursor: pointer;
+      font-weight: 800; letter-spacing: .2px; border: 1px solid rgba(255,255,255,.16);
+    }
+    .btn.primary{ background: linear-gradient(135deg, var(--brand), var(--brand-2)); color:#072012; border-color: transparent; }
+    .btn.secondary{ background: transparent; color: var(--text); }
+    .btn:hover{ filter: brightness(1.04); }
+    .download-hero__badge{
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08);
+      font-size: 12px; color: var(--text); width: max-content;
+    }
+    .download-hero__icon{
+      width: clamp(64px, 10vw, 86px);
+      height: clamp(64px, 10vw, 86px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(120% 120% at -10% -10%, rgba(52,199,89,.25) 0%, transparent 60%),
+        rgba(255,255,255,.06);
+      box-shadow: 0 16px 42px rgba(0,0,0,.45);
+      display: grid; place-items: center;
+    }
+    .download-hero__icon svg{ width: 54%; height: 54%; opacity: .92; filter: drop-shadow(0 6px 18px rgba(0,0,0,.35)); }
+    @media (max-width: 780px){
+      .download-hero{ grid-template-columns: 1fr; text-align: center; padding: 18px; }
+      .download-hero__actions{ justify-content: center; }
+      .download-hero__icon{ margin-inline: auto; }
+    }
+
+    /* ==== Cards/Accordion ==== */
+    .grid-2{ display:grid; gap:24px; grid-template-columns:1fr 1fr; }
+    @media (max-width:900px){ .grid-2{ grid-template-columns:1fr; } }
+
+    .card{
+      background:linear-gradient(180deg,rgba(16,40,26,.96),rgba(16,40,26,.90));
+      border:1px solid rgba(255,255,255,.20);
+      border-radius:var(--radius);
+      box-shadow:0 22px 60px rgba(0,0,0,.55);
+      padding:20px;
+    }
+    .card h2{ margin:0 0 6px; font-size:clamp(20px,2.6vw,24px) }
+    .card .sub{ margin:0 0 16px; color:var(--muted) }
+
+    details.accordion{
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      border-radius:14px;
+      overflow:hidden;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    details.accordion[open]{ border-color:rgba(255,255,255,.26); background:rgba(255,255,255,.08); }
+
+    summary.accordion__summary{
+      cursor:pointer; user-select:none; outline:none;
+      padding:12px 14px;
+      font-weight:800; letter-spacing:.2px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      list-style:none;
+    }
+    summary.accordion__summary::-webkit-details-marker{ display:none; }
+    .summary-hint{ color:var(--muted); font-weight:600; font-size:12px }
+
+    .panel{ padding:12px 14px 16px; border-top:1px solid rgba(255,255,255,.12); display:grid; gap:12px; }
+    .panel .counter{ color:var(--muted); font-size:14px }
+
+    .list{ list-style:none; margin:0; padding:0; border:1px solid rgba(255,255,255,.12); border-radius:12px; overflow:hidden; }
+    .list-item{
+      display:flex; align-items:center; gap:12px;
+      padding:10px 12px; background:rgba(255,255,255,.05);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .list-item:last-child{ border-bottom:none; }
+    .list-item input[type="checkbox"]{ width:18px; height:18px; accent-color:#34c759; }
+    .list-item label{ cursor:pointer; flex:1; user-select:none; }
+    .file-hint{ color:var(--muted); font-size:12px }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* ====== NOVO: Container rolável ====== */
+    .scroller{
+      max-height: clamp(220px, 40vh, 380px);
+      overflow-y: auto;
+      border-radius: 12px;
+      box-shadow: inset 0 6px 8px rgba(0,0,0,.08);
+    }
+    .scroller::-webkit-scrollbar{ width: 10px; }
+    .scroller::-webkit-scrollbar-track{
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+    }
+    .scroller::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.22);
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.06);
+    }
+    .scroller:hover::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.32); }
+    .scroller{ scrollbar-color: rgba(255,255,255,.28) rgba(255,255,255,.08); scrollbar-width: thin; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HERO (atalhos) -->
+    <div class="download-hero">
+      <div class="download-hero__left">
+        <span class="download-hero__badge">Demonstração • Ano-base 2022</span>
+        <h2>Downloads de Predições & Relatórios</h2>
+        <p>
+          Selecione as predições do modelo Geoguard AI para baixar os <strong>relatórios em PDF</strong>
+          (metodologia, métricas e recomendações) e as <strong>imagens/dados</strong> (ex.: GeoTIFF) para uso em SIG.
+        </p>
+        <div class="download-hero__actions">
+          <a class="btn primary" href="#accReports">Ver lista de Relatórios</a>
+          <a class="btn secondary" href="#accImages">Ver lista de Imagens/Dados</a>
+        </div>
+      </div>
+      <div class="download-hero__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <section class="grid-2">
+      <!-- CARD 1: RELATÓRIOS (PDF) -->
+      <article class="card">
+        <h2>Relatórios (PDF)</h2>
+        <p class="sub">
+          Relatórios por predição: metodologia do pipeline (Sentinel-2 → QGIS → IA → filtros de nuvem/sombra),
+          métricas (IoU, precisão, recall), mapas de mudança/hotspots e recomendações operacionais.
+        </p>
+
+        <details class="accordion" id="accReports">
+          <summary class="accordion__summary">
+            Ver lista de quinzenas
+            <span class="summary-hint">Quinzena 1–24 (2022)</span>
+          </summary>
+          <div class="panel">
+            <div class="actions">
+              <button class="btn secondary" data-action="toggle-all" data-target="listReports">Selecionar/Desmarcar tudo</button>
+              <button class="btn secondary" data-action="clear" data-target="listReports">Limpar</button>
+              <span class="counter" id="counterReports">0 selecionado(s)</span>
+            </div>
+
+            <div class="scroller">
+              <ul class="list" id="listReports"><!-- itens via JS --></ul>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary"   id="dlSelectedReports">Baixar selecionados</button>
+              <button class="btn secondary" id="dlAllReports">Baixar todos</button>
+            </div>
+          </div>
+        </details>
+      </article>
+
+      <!-- CARD 2: IMAGENS / DADOS -->
+      <article class="card">
+        <h2>Imagens / Dados</h2>
+        <p class="sub">
+          Arquivos de saída do modelo (ex.: GeoTIFF). Abra em softwares SIG (QGIS/ArcGIS) para análises, sobreposições e geração de mapas.
+        </p>
+
+        <details class="accordion" id="accImages">
+          <summary class="accordion__summary">
+            Ver lista de quinzenas
+            <span class="summary-hint">Quinzena 1–24 (2022)</span>
+          </summary>
+          <div class="panel">
+            <div class="actions">
+              <button class="btn secondary" data-action="toggle-all" data-target="listImages">Selecionar/Desmarcar tudo</button>
+              <button class="btn secondary" data-action="clear" data-target="listImages">Limpar</button>
+              <span class="counter" id="counterImages">0 selecionado(s)</span>
+            </div>
+
+            <div class="scroller">
+              <ul class="list" id="listImages"><!-- itens via JS --></ul>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary"   id="dlSelectedImages">Baixar selecionados</button>
+              <button class="btn secondary" id="dlAllImages">Baixar todos</button>
+            </div>
+          </div>
+        </details>
+      </article>
+    </section>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    // ====== NOMES DAS 24 QUINZENAS DE 2022 ======
+    var MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    var QUINZENAS = [];
+    for(var m=0; m<12; m++){
+      QUINZENAS.push('Quinzena 1 ' + MESES[m] + '/2022');
+      QUINZENAS.push('Quinzena 2 ' + MESES[m] + '/2022');
+    }
+
+    // Bases de download (mantidas para compatibilidade):
+    // prediction-XX.pdf e prediction-XX.tif
+    var REPORT_BASE = '/static/reports/', REPORT_EXT = 'pdf';
+    var DATA_BASE   = '/static/reports/', DATA_EXT   = 'tif';
+
+    function pad2(n){ n=Number(n)||0; return (n<10?'0':'')+n; }
+    function el(t,c,tx){ var e=document.createElement(t); if(c) e.className=c; if(tx!=null) e.textContent=tx; return e; }
+
+    function buildList(ulId, namePrefix, ext){
+      var ul = document.getElementById(ulId);
+      for(var i=1;i<=QUINZENAS.length;i++){
+        var li=el('li','list-item'),
+            id=namePrefix+'-'+pad2(i),
+            cb=el('input'); cb.type='checkbox'; cb.id=id; cb.dataset.idx=i;
+        var lb=el('label'); lb.htmlFor=id; lb.textContent=QUINZENAS[i-1];
+        // Dica visual do nome do arquivo (opcional):
+        var hint=el('span','file-hint','quinzena-'+pad2(i)+'.'+ext);
+        li.appendChild(cb); li.appendChild(lb); li.appendChild(hint); ul.appendChild(li);
+      }
+    }
+
+    function selected(listId){
+      var out=[], cbs=document.getElementById(listId).querySelectorAll('input[type="checkbox"]');
+      for(var i=0;i<cbs.length;i++) if(cbs[i].checked) out.push(Number(cbs[i].dataset.idx));
+      return out;
+    }
+    function setCounter(counterId,listId){
+      document.getElementById(counterId).textContent = selected(listId).length+' selecionado(s)';
+    }
+    function toggleAll(listId,val){
+      var cbs=document.getElementById(listId).querySelectorAll('input[type="checkbox"]');
+      for(var i=0;i<cbs.length;i++) cbs[i].checked = (val==null? !cbs[i].checked : !!val);
+    }
+    function clearAll(listId){ toggleAll(listId,false); }
+
+    // Mantém as URLs com "prediction-XX.ext" para não quebrar seus arquivos atuais.
+    function makeUrls(idxs,base,ext){
+      var u=[];
+      for(var j=0;j<idxs.length;j++) u.push(base+'prediction-'+pad2(idxs[j])+'.'+ext);
+      return u;
+    }
+
+    function downloadMany(urls){
+      var i=0;
+      (function next(){
+        if(i>=urls.length) return;
+        var a=document.createElement('a'); a.href=urls[i]; a.target='_blank'; a.download='';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        i++; setTimeout(next,160);
+      })();
+    }
+
+    // Construção das listas
+    buildList('listReports','rep',REPORT_EXT);
+    buildList('listImages','img',DATA_EXT);
+
+    // Listeners
+    document.getElementById('listReports').addEventListener('change',function(){ setCounter('counterReports','listReports'); });
+    document.getElementById('listImages').addEventListener('change', function(){ setCounter('counterImages','listImages');  });
+
+    document.querySelectorAll('[data-action="toggle-all"]').forEach(function(b){
+      b.addEventListener('click',function(){
+        toggleAll(this.dataset.target,null);
+        (this.dataset.target==='listReports'
+          ? setCounter('counterReports','listReports')
+          : setCounter('counterImages','listImages'));
+      });
+    });
+    document.querySelectorAll('[data-action="clear"]').forEach(function(b){
+      b.addEventListener('click',function(){
+        clearAll(this.dataset.target);
+        (this.dataset.target==='listReports'
+          ? setCounter('counterReports','listReports')
+          : setCounter('counterImages','listImages'));
+      });
+    });
+
+    document.getElementById('dlSelectedReports').addEventListener('click',function(){
+      var picks=selected('listReports'); if(!picks.length){ alert('Selecione pelo menos um relatório.'); return; }
+      downloadMany(makeUrls(picks,REPORT_BASE,REPORT_EXT));
+    });
+    document.getElementById('dlAllReports').addEventListener('click',function(){
+      var all=[]; for(var i=1;i<=QUINZENAS.length;i++) all.push(i); downloadMany(makeUrls(all,REPORT_BASE,REPORT_EXT));
+    });
+    document.getElementById('dlSelectedImages').addEventListener('click',function(){
+      var picks=selected('listImages'); if(!picks.length){ alert('Selecione pelo menos uma quinzena.'); return; }
+      downloadMany(makeUrls(picks,DATA_BASE,DATA_EXT));
+    });
+    document.getElementById('dlAllImages').addEventListener('click',function(){
+      var all=[]; for(var i=1;i<=QUINZENAS.length;i++) all.push(i); downloadMany(makeUrls(all,DATA_BASE,DATA_EXT));
+    });
+
+    // Contadores iniciais
+    setCounter('counterReports','listReports');
+    setCounter('counterImages','listImages');
+  })();
+  </script>
+</body>
+</html>
+
 {% endblock %}
