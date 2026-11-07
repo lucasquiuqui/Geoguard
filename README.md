@@ -2,7 +2,6 @@
 
 **Uma aplicação web para explorar, visualizar e interpretar mapas de risco de desmatamento na Amazônia.**
 
-![Logotipo do GeoGuard](meu_app/static/images/logo.png)
 
 > **Status:** protótipo acadêmico desenvolvido no Instituto Militar de Engenharia (IME). A versão deste repositório apresenta dados históricos de 2022; não é um serviço de monitoramento em tempo real.
 
